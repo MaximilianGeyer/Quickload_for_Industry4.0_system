@@ -1,6 +1,8 @@
 
+
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+### 2tes Window: (wenn Eingaben beim ersten Window bestätigt)
 class AusgabeWindow(QtWidgets.QWidget):
     def __init__(self, main_window):
         super().__init__()
@@ -13,7 +15,7 @@ class AusgabeWindow(QtWidgets.QWidget):
         # Speichern des übergebenen MainWindow-Objekts
         self.main_window = main_window
 
-
+### Logo-SBS oben links Logo
         # Label Logo SBS
         self.Label_SBSlogo = QtWidgets.QLabel(self)
         self.Label_SBSlogo.setGeometry(QtCore.QRect(220, 12, 150, 150))
@@ -28,6 +30,7 @@ class AusgabeWindow(QtWidgets.QWidget):
         else:
             print("Fehler: Bild 'SBSlogo.jpeg' konnte nicht geladen werden.")
 
+### Logo-Quickload oben links Logo
         # Label Logo QuickLoad
         self.Label_QuickLoad = QtWidgets.QLabel(self)
         self.Label_QuickLoad.setGeometry(QtCore.QRect(12, 12, 150, 150))
@@ -42,23 +45,27 @@ class AusgabeWindow(QtWidgets.QWidget):
         else:
             print("Fehler: Bild 'QuickLoad.jpg' konnte nicht geladen werden.")
 
+### Schriftzug (mitte) erst nach ablauf progressbar(Ladezeile) sichtbar
         # Label für das neue Fenster
         self.label = QtWidgets.QLabel("Das Produkt wurde erfolgreich erstellt!", self)
         self.label.setGeometry(150, 200, 1100, 100)  # Label positionieren und Größe festlegen
         self.label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label.setStyleSheet("font-size: 30px; color: transparent; background-color: white;")
 
+### Kästchen (mitte) mit Schriftinhalt (Beschreibung Ordner)
         # QTextBrowser hinzufügen
         self.textBrowser = QtWidgets.QTextBrowser(self)
         self.textBrowser.setGeometry(QtCore.QRect(240, 450, 980, 106))
         self.textBrowser.setStyleSheet("font-size: 20px;")
         self.textBrowser.setText("Die Datei: ... befindet sich im Ordner ... diese musst du in die Industrie 4.0 Anlage einpflegen. Danach kannst es dann unter den Produktnamen den du deinen Produkt gegeben hast im System der Industrie 4.0 Anlage aufrufen.")
 
+### Zurück-Button (unten)
         # Zurück-Button hinzufügen
         self.backButton = QtWidgets.QPushButton("Zurück zum Hauptfenster", self)
         self.backButton.setGeometry(500, 720, 400, 40)
         self.backButton.clicked.connect(self.on_back_button_clicked)
 
+### Ladezeile (mitte) läuft nach öffnen dieses Windows durch
         # ProgressBar hinzufügen
         self.progressBar = QtWidgets.QProgressBar(self)
         self.progressBar.setGeometry(QtCore.QRect(480, 300, 500, 60))
@@ -79,7 +86,7 @@ class AusgabeWindow(QtWidgets.QWidget):
         # Texte basierend auf der ausgewählten Sprache festlegen
         self.set_language_text()
 
-
+### für Sprachausgabe (Text ändern in ausgewählte Sprache vom Window davor)
     def set_language_text(self):
         """Setzt die Texte für die Benutzeroberfläche basierend auf der Sprache."""
         # Übernehmen der Spracheinstellung aus dem main_window
@@ -113,6 +120,7 @@ class AusgabeWindow(QtWidgets.QWidget):
         # Zeige das MainWindow erneut
         self.main_window.show()
 
+### Ladezeile start
     def start_progress_bar(self):
         """Startet die ProgressBar und setzt den Timer"""
         self.progressBar.setValue(0)      # Setze den Fortschritt auf 0
@@ -131,6 +139,7 @@ class AusgabeWindow(QtWidgets.QWidget):
             self.label.setStyleSheet("font-size: 30px; color: green; background-color: white;")
 
 
+### Hauptfenster (Start Window)
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
@@ -185,29 +194,31 @@ class MainWindow(QtWidgets.QMainWindow):
         }
         self.language = "de"  # Standard-Sprache: Deutsch
 
+### Ausgabe am Ende (für XML)
         # Wörterbuch für vordefinierte Begriffe
         self.predefined_words = {
-            "Werkstück rot": "Vordefiniertes_Wort_Rot",
-            "Workpiece red": "Vordefiniertes_Wort_Rot",
-            "Werkstück schwarz": "Vordefiniertes_Wort_Schwarz",
-            "Workpiece black": "Vordefiniertes_Wort_Schwarz",
-            "Werkstück silber": "Vordefiniertes_Wort_Silber",
-            "Workpiece silver": "Vordefiniertes_Wort_Silber",
-            "Kappe montieren": "Vordefiniertes_Wort_Kappe",
-            "Mount cap": "Vordefiniertes_Wort_Kappe",
-            "Farbe kontrollieren": "Vordefiniertes_Wort_Farbe",
-            "Check colour": "Vordefiniertes_Wort_Farbe",
-            "nationaler Vertrieb": "Vordefiniertes_Wort_National",
-            "national distribution": "Vordefiniertes_Wort_National",
-            "internationaler Vertrieb": "Vordefiniertes_Wort_International",
-            "international distribution": "Vordefiniertes_Wort_International",
+            "Werkstück rot": "release red workpiece",
+            "Red Workpiece": "release red workpiece",
+            "Werkstück schwarz": "release black workpiece",
+            "Black Workpiece": "release black workpiece",
+            "Werkstück silber": "release silver workpiece",
+            "Silver Workpiece": "release silver workpiece",
+            "Kappe montieren": "mount cap",
+            "Mount Cap": "mount cap",
+            "Farbe kontrollieren": "check colour",
+            "Check Color": "check colour",
+            "nationaler Vertrieb": "national distribution",
+            "National Distribution": "national distribution",
+            "internationaler Vertrieb": "international distribution",
+            "International Distribution": "international distribution",
         }
 
+### Sprachauswahl Combobox (rechts oben)
         # Sprachwechsel-ComboBox
         self.languageComboBox = QtWidgets.QComboBox(self)
         self.languageComboBox.setGeometry(QtCore.QRect(1150, 10, 120, 30))
         self.languageComboBox.addItem("Deutsch")
-        self.languageComboBox.addItem("Englisch")
+        self.languageComboBox.addItem("English")
         self.languageComboBox.currentIndexChanged.connect(self.change_language)
 
         # Initialisierung der GUI-Komponenten
@@ -216,36 +227,39 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def setup_ui(self):
         self.selected_language = self.language
+
+### Die Überschriften die über den dazugehörigen Feldern stehen
         # Labels
+        # Produkt erstellen
         self.label_produkt_erstellen = QtWidgets.QLabel(self)
         self.label_produkt_erstellen.setGeometry(QtCore.QRect(500, 10, 550, 16))
         self.label_produkt_erstellen.setObjectName("Produkt-erstellen")
         self.label_produkt_erstellen.setStyleSheet("""font-size: 30px;  /* Größere Schrift *""")
-
+        # Produktname
         self.label_name = QtWidgets.QLabel(self)
         self.label_name.setGeometry(QtCore.QRect(500, 100, 89, 16))
         self.label_name.setObjectName("label")
-
+        # Produkt
         self.label_produkt_anzeige = QtWidgets.QLabel(self)
         self.label_produkt_anzeige.setGeometry(QtCore.QRect(320, 500, 89, 16))
         self.label_produkt_anzeige.setObjectName("Produkt :")
-
+        # Produkt Beschreibung
         self.label_produkt_beschreibung = QtWidgets.QLabel(self)
         self.label_produkt_beschreibung.setGeometry(QtCore.QRect(810, 100, 137, 16))
         self.label_produkt_beschreibung.setObjectName("label_2")
-
+        # Werkstückauswahl
         self.label_stack_magazine = QtWidgets.QLabel(self)
         self.label_stack_magazine.setGeometry(QtCore.QRect(310, 300, 95, 16))
         self.label_stack_magazine.setObjectName("label_3")
-
+        # Zusatzauswahl
         self.label_joining = QtWidgets.QLabel(self)
         self.label_joining.setGeometry(QtCore.QRect(660, 300, 44, 16))
         self.label_joining.setObjectName("label_4")
-
+        # Sortierungsauswahl
         self.label_sorting = QtWidgets.QLabel(self)
         self.label_sorting.setGeometry(QtCore.QRect(960, 300, 44, 16))
         self.label_sorting.setObjectName("label_5")
-
+### Kästchen (mitte) anzeige ausgewählte
         # TextBrowser
         self.textBrowser = QtWidgets.QTextBrowser(self)
         self.textBrowser.setGeometry(QtCore.QRect(260, 550, 980, 106))
@@ -256,19 +270,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.original_font_size = 20  # Ursprüngliche Schriftgröße
 
 
-        # PushButtons
+### PushButtons
         # PushButton Produkt fertig
         self.pushButtonProduktFertig = QtWidgets.QPushButton(self)
         self.pushButtonProduktFertig.setGeometry(QtCore.QRect(540, 720, 400, 30))
         self.pushButtonProduktFertig.setObjectName("pushButtonProduktFertig")
         self.pushButtonProduktFertig.clicked.connect(self.on_pushButtonProduktFertig_clicked)
-        # PushButton Eingaben verbessern
+        # PushButton Eingaben verbessern (erst sichtbar wenn Produkt fertig gedrückt)
         self.pushButtonEingabeVerbessern = QtWidgets.QPushButton(self)
         self.pushButtonEingabeVerbessern.setGeometry(QtCore.QRect(420, 720, 221, 51))
         self.pushButtonEingabeVerbessern.setObjectName("pushButtonEingabenVerbessern")
         self.pushButtonEingabeVerbessern.setVisible(False)
         self.pushButtonEingabeVerbessern.clicked.connect(self.on_pushButtonEingabeVerbessern_clicked)
-        # PushButton Produkt ausgeben
+        # PushButton Produkt ausgeben (erst sichtbar wenn Produkt fertig gedrückt)
         self.pushButtonProduktAusgeben = QtWidgets.QPushButton(self)
         self.pushButtonProduktAusgeben.setGeometry(QtCore.QRect(780, 720, 100, 30))
         self.pushButtonProduktAusgeben.setObjectName("pushButtonProduktAusgeben")
@@ -281,6 +295,7 @@ class MainWindow(QtWidgets.QMainWindow):
             ausgeben_color="lightgreen"
         )
 
+### Logo-SBS oben links Logo
         # Label Logo SBS
         self.Label_SBSlogo = QtWidgets.QLabel(self)
         self.Label_SBSlogo.setGeometry(QtCore.QRect(220, 12, 150, 150))
@@ -295,6 +310,7 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             print("Fehler: Bild 'SBSlogo.jpeg' konnte nicht geladen werden.")
 
+### Logo-Quickload oben links Logo
         # Label Logo QuickLoad
         self.Label_QuickLoad = QtWidgets.QLabel(self)
         self.Label_QuickLoad.setGeometry(QtCore.QRect(12, 12, 150, 150))
@@ -309,20 +325,22 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             print("Fehler: Bild 'QuickLoad.jpg' konnte nicht geladen werden.")
 
-
+### Eingabekästchen für Produkt name
         # LineEdit
         self.lineEdit = QtWidgets.QLineEdit(self)
         self.lineEdit.setGeometry(QtCore.QRect(490, 160, 200, 28))
         self.lineEdit.setObjectName("lineEdit")
         self.lineEdit.setStyleSheet("""font-size: 16px;""")
 
+### Eingabefeld für Produkt Beschreibung
         # TextEdit
         self.textEdit = QtWidgets.QTextEdit(self)
         self.textEdit.setGeometry(QtCore.QRect(800, 160, 270, 77))
         self.textEdit.setObjectName("textEdit")
         self.textEdit.setStyleSheet("""font-size: 16px;""")
 
-        # ComboBox1 workpiece
+### Die Auswahl Comboboxen
+        # ComboBox1 Werkstückauswahl (workpiece)
         self.comboBox_workpiece = QtWidgets.QComboBox(self)
         self.comboBox_workpiece.setGeometry(QtCore.QRect(270, 330, 250, 32))
         self.comboBox_workpiece.setObjectName("comboBox_3")
@@ -331,7 +349,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.comboBox_workpiece.addItem("Werkstück rot")  # release red workpiece
         self.comboBox_workpiece.addItem("Werkstück schwarz") # release black workpiece
         self.comboBox_workpiece.addItem("Werkstück silber") # release silver workpiece
-        # ComboBox2 mount cap
+        # ComboBox2 Kappe montieren (mount cap)
         self.comboBox_mountCap = QtWidgets.QComboBox(self)
         self.comboBox_mountCap.setGeometry(QtCore.QRect(610, 330, 180, 32))
         self.comboBox_mountCap.setObjectName("comboBox_2")
@@ -339,7 +357,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.comboBox_mountCap.setItemData(0, 0, QtCore.Qt.ItemDataRole.UserRole - 1)
         self.comboBox_mountCap.addItem("-")
         self.comboBox_mountCap.addItem("Kappe montieren") # mount cap
-        # ComboBox3 checkColour
+        # ComboBox3 Farbe kontrollieren (checkColour)
         self.comboBox_checkColour = QtWidgets.QComboBox(self)
         self.comboBox_checkColour.setGeometry(QtCore.QRect(610, 390, 180, 50))
         self.comboBox_checkColour.setObjectName("comboBox_4")
@@ -347,7 +365,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.comboBox_checkColour.setItemData(0, 0, QtCore.Qt.ItemDataRole.UserRole - 1)
         self.comboBox_checkColour.addItem("-")
         self.comboBox_checkColour.addItem("Farbe kontrollieren") # check colour
-        # ComboBox 4
+        # ComboBox 4 Sortierungsauswahl (Sorting)
         self.comboBox_distribution = QtWidgets.QComboBox(self)
         self.comboBox_distribution.setGeometry(QtCore.QRect(920, 330, 250, 32))
         self.comboBox_distribution.setObjectName("comboBox")
@@ -356,6 +374,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.comboBox_distribution.addItem("nationaler Vertrieb") # national distribution
         self.comboBox_distribution.addItem("internationaler Vertrieb") # international distribution
 
+### Textzfeld (unten) die eingegebenen, ausgewählten Werte darstellen in der ausgewählten Sprache
         # Verbinde das TextChanged-Signal des lineEdit mit der Funktion
         self.lineEdit.textChanged.connect(self.update_textBrowser)
         self.textEdit.textChanged.connect(self.update_textBrowser)
@@ -364,10 +383,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.comboBox_mountCap.currentTextChanged.connect(self.update_textBrowser)
         self.comboBox_checkColour.currentTextChanged.connect(self.update_textBrowser)
 
+### Sprach änderung (Deutsch, Englisch)
     def change_language(self):
         """Wechselt die Sprache der Anwendung."""
         selected_language = self.languageComboBox.currentText()
-        self.language = "en" if selected_language == "Englisch" else "de"
+        self.language = "en" if selected_language == "English" else "de"
         self.selected_language = self.language  # Update the selected_language attribute
         self.apply_translations()
 
@@ -408,6 +428,7 @@ class MainWindow(QtWidgets.QMainWindow):
             t["combo_auswählen"], t["combo_vertrieb_national"], t["combo_vertrieb_international"]
         ])
 
+### Hauptwindow zurücksetzten wenn Produktauswahl abgeschlossen ist (in Start zustand)
     def reset_main_window(self):
         """Setzt alle Felder und Widgets im MainWindow zurück."""
         # Setze alle Eingabefelder zurück
@@ -444,6 +465,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButtonEingabeVerbessern.setStyleSheet(f"background-color: {verbessern_color};")
         self.pushButtonProduktAusgeben.setStyleSheet(f"background-color: {ausgeben_color};")
 
+### In das Textfeld (unten) die eingegebenen, ausgewählten Werte darstellen in der ausgewählten Sprache
     def update_textBrowser(self):
         """Aktualisiert den Inhalt des TextBrowsers mit den aktuellen Werten."""
         name = self.lineEdit.text().strip()
@@ -481,18 +503,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.textBrowser.setText("".join(display_text))
 
     def on_pushButtonProduktFertig_clicked(self):
+        # Texte, die "auswählen" bedeuten, in verschiedenen Sprachen
+        unselected_texts = ["auswählen", "select"]  # Füge hier weitere Sprachen hinzu, falls nötig
+
+        # Überprüfen der ausgewählten Sprache
+        selected_language = self.languageComboBox.currentText().strip().lower()  # Hier wird die ausgewählte Sprache ermittelt
+        # Fehlernachricht basierend auf der Sprache
+        if selected_language == "english":
+            error_message = "All fields must be filled out first!"
+        else:  # Standardmäßig Deutsch
+            error_message = "Alle Angaben müssen zuerst ausgefüllt werden!"
+
         # Wenn 'Produkt fertig' gedrückt wird:
         # Überprüfen, ob alle Felder ausgefüllt sind
         if (self.lineEdit.text().strip() == "" or  # Name ist leer
                 self.textEdit.toPlainText().strip() == "" or  # Beschreibung ist leer
-                self.comboBox_workpiece.currentText() == "auswählen" or  # Kein Workpiece ausgewählt
-                self.comboBox_distribution.currentText() == "auswählen" or  # Keine Distribution ausgewählt
-                self.comboBox_mountCap.currentText() == "auswählen" or  # Kein Mount Cap ausgewählt
-                self.comboBox_checkColour.currentText() == "auswählen"):  # Keine Farbe ausgewählt
+                self.comboBox_workpiece.currentText().strip().lower() in unselected_texts or  # Kein Workpiece ausgewählt
+                self.comboBox_distribution.currentText().strip().lower() in unselected_texts or  # Keine Distribution ausgewählt
+                self.comboBox_mountCap.currentText().strip().lower() in unselected_texts or  # Kein Mount Cap ausgewählt
+                self.comboBox_checkColour.currentText().strip().lower() in unselected_texts):  # Keine Farbe ausgewählt
 
             # Fehlermeldung anzeigen
             QtWidgets.QMessageBox.warning(
-                None, "Fehler", "Alle Angaben müssen zuerst ausgefüllt werden!"
+                None, "Fehler", error_message  # Verwenden Sie die dynamisch festgelegte Fehlermeldung
             )
         else:
             # Wenn alle Felder ausgefüllt sind, gehe weiter
@@ -519,6 +552,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.textBrowser.setGeometry(QtCore.QRect(180, 450, 1080, 230))
             self.textBrowser.setStyleSheet("""font-size: 30px;  /* Größere Schrift */""")
 
+### Verbessern Button (zurück kann man nochmal Werte ändern)
     def on_pushButtonEingabeVerbessern_clicked(self):
         self.pushButtonProduktFertig.setVisible(True)
 
@@ -540,6 +574,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.textBrowser.setGeometry(self.original_textBrowser_geometry)  # Ursprüngliche Geometrie wiederherstellen
         self.textBrowser.setStyleSheet(f"font-size: {self.original_font_size}px;")
 
+### Produkt ausgeben (geht weiter auf das Zweite Window und gibt ausgewählte Daten mit (Code dazu am Anfang oben))
     def on_pushButtonProduktAusgeben_clicked(self):
         """Wird ausgeführt, wenn der Button 'Produkt ausgeben' geklickt wird."""
 
@@ -553,23 +588,24 @@ class MainWindow(QtWidgets.QMainWindow):
         checkColour = self.comboBox_checkColour.currentText()
         distribution = self.comboBox_distribution.currentText()
 
+### Gibt die Ausgewählten Werte aus (Feste Wörter pro Gegenstand egal welche Sprache ausgewählt ist für XML-Handling)
         # Ausgabe der vordefinierten Begriffe
         print(f"Produktname: {name}")
         print(f"Produktbeschreibung: {beschreibung}")
 
         # Ausgeben der vordefinierten Begriffe für jede Auswahl
-        wp = self.predefined_words.get(workpiece, "Unbekannt")
+        wp = self.predefined_words.get(workpiece, workpiece)
         print(f"Werkstück: {wp}")
 
-        mc = self.predefined_words.get(mountCap, "Unbekannt")
+        mc = self.predefined_words.get(mountCap, mountCap)
         print(f"Kappe montieren: {mc}")
 
-        cc = self.predefined_words.get(checkColour, "Unbekannt")
+        cc = self.predefined_words.get(checkColour, checkColour)
         print(f"Farbe kontrollieren: {cc}")
 
-        dist = self.predefined_words.get(distribution, "Unbekannt")
+        dist = self.predefined_words.get(distribution, distribution)
         print(f"Vertrieb: {dist}")
-
+        
         #########                     #######
         #########                     #######
         ######### ausgabe in XML Code #######
@@ -605,4 +641,3 @@ if __name__ == "__main__":
     main_window = MainWindow()
     main_window.showFullScreen()
     sys.exit(app.exec())
-
