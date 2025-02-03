@@ -73,8 +73,8 @@ class AusgabeWindow(QtWidgets.QWidget):
         self.progressBar.setValue(0)      # Startwert 0%
 
         # ProgressBar Einstellungen (in Millisekunden)
-        self.progress_duration = 2000  # Gesamtzeit für den Fortschritt (z.B. 5000 ms = 5 Sekunden)
-        self.progress_speed = 20      # Zeit in ms für jedes Schritt der ProgressBar (50ms für jedes Inkrement)
+        self.progress_duration = 1600  # Gesamtzeit für den Fortschritt (z.B. 5000 ms = 5 Sekunden)
+        self.progress_speed = 13      # Zeit in ms für jedes Schritt der ProgressBar (50ms für jedes Inkrement)
 
         # Timer
         self.progress_timer = QtCore.QTimer(self)
@@ -153,6 +153,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 "window_title": "Produkt Industrie 4.0 Anlage erstellen",
                 "produkt_erstellen": "Produkt Industrie 4.0 Anlage erstellen:",
                 "produktname": "Produktname:",
+                "sprachauswahl": "Language selection",
                 "produktbeschreibung": "Produktbeschreibung:",
                 "werkstückauswahl": "Werkstückauswahl",
                 "zusatzauswahl": "Zusatzauswahl",
@@ -174,6 +175,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 "window_title": "Create Product Industry 4.0 System",
                 "produkt_erstellen": "Create Product Industry 4.0 System:",
                 "produktname": "Product Name:",
+                "sprachauswahl": "Language selection",
                 "produktbeschreibung": "Product Description:",
                 "werkstückauswahl": "Workpiece Selection",
                 "zusatzauswahl": "Additional Selection",
@@ -216,7 +218,7 @@ class MainWindow(QtWidgets.QMainWindow):
 ### Sprachauswahl Combobox (rechts oben)
         # Sprachwechsel-ComboBox
         self.languageComboBox = QtWidgets.QComboBox(self)
-        self.languageComboBox.setGeometry(QtCore.QRect(1150, 10, 120, 30))
+        self.languageComboBox.setGeometry(QtCore.QRect(1120, 50, 120, 30))
         self.languageComboBox.addItem("Deutsch")
         self.languageComboBox.addItem("English")
         self.languageComboBox.currentIndexChanged.connect(self.change_language)
@@ -247,6 +249,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.label_produkt_beschreibung = QtWidgets.QLabel(self)
         self.label_produkt_beschreibung.setGeometry(QtCore.QRect(810, 100, 137, 16))
         self.label_produkt_beschreibung.setObjectName("label_2")
+        # Spracheauswahl
+        self.label_spracheauswahl = QtWidgets.QLabel(self)
+        self.label_spracheauswahl.setGeometry(QtCore.QRect(1140, 30, 89, 16))
+        self.label_spracheauswahl.setObjectName("spracheauswahl")
         # Werkstückauswahl
         self.label_stack_magazine = QtWidgets.QLabel(self)
         self.label_stack_magazine.setGeometry(QtCore.QRect(310, 300, 95, 16))
@@ -383,7 +389,39 @@ class MainWindow(QtWidgets.QMainWindow):
         self.comboBox_mountCap.currentTextChanged.connect(self.update_textBrowser)
         self.comboBox_checkColour.currentTextChanged.connect(self.update_textBrowser)
 
-### Sprach änderung (Deutsch, Englisch)
+### Rote linien unter nicht ausgefüllten Eingaben/Auswahl bei Weiter(Produkt fertig) klickt
+        # Rote Linie Produktname
+        self.line_red_Produktname = QtWidgets.QFrame(self)
+        self.line_red_Produktname.setGeometry(490, 190, 200, 3)
+        self.line_red_Produktname.setStyleSheet("background-color: red;")
+        self.line_red_Produktname.setVisible(False)  # Zunächst nicht sichtbar
+        # Rote Linie Produkbeschreibung
+        self.line_red_Produktbeschreibung = QtWidgets.QFrame(self)
+        self.line_red_Produktbeschreibung.setGeometry(800, 240, 270, 3)
+        self.line_red_Produktbeschreibung.setStyleSheet("background-color: red;")
+        self.line_red_Produktbeschreibung.setVisible(False)  # Zunächst nicht sichtbar
+        # Rote Linie Werkstückauswahl
+        self.line_red_workpiece = QtWidgets.QFrame(self)
+        self.line_red_workpiece.setGeometry(280, 383, 230, 3)
+        self.line_red_workpiece.setStyleSheet("background-color: red;")
+        self.line_red_workpiece.setVisible(False)  # Zunächst nicht sichtbar
+        # Rote Linie Sortierungsauswahl
+        self.line_red_distributation = QtWidgets.QFrame(self)
+        self.line_red_distributation.setGeometry(930, 383, 230, 3)
+        self.line_red_distributation.setStyleSheet("background-color: red;")
+        self.line_red_distributation.setVisible(False)  # Zunächst nicht sichtbar
+        # Rote Linie Kappe montieren
+        self.line_red_mountCap = QtWidgets.QFrame(self)
+        self.line_red_mountCap.setGeometry(620, 383, 210, 3)
+        self.line_red_mountCap.setStyleSheet("background-color: red;")
+        self.line_red_mountCap.setVisible(False)  # Zunächst nicht sichtbar
+        # Rote Linie Farbe kontrollieren
+        self.line_red_checkColour = QtWidgets.QFrame(self)
+        self.line_red_checkColour.setGeometry(620, 443, 210, 3)
+        self.line_red_checkColour.setStyleSheet("background-color: red;")
+        self.line_red_checkColour.setVisible(False)  # Zunächst nicht sichtbar
+
+    ### Sprach änderung (Deutsch, Englisch)
     def change_language(self):
         """Wechselt die Sprache der Anwendung."""
         selected_language = self.languageComboBox.currentText()
@@ -401,6 +439,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle(t["window_title"])
         self.label_produkt_erstellen.setText(t["produkt_erstellen"])
         self.label_name.setText(t["produktname"])
+        self.label_spracheauswahl.setText(t["sprachauswahl"])
         self.label_produkt_beschreibung.setText(t["produktbeschreibung"])
         self.label_stack_magazine.setText(t["werkstückauswahl"])
         self.label_joining.setText(t["zusatzauswahl"])
@@ -459,6 +498,10 @@ class MainWindow(QtWidgets.QMainWindow):
         for widget in widgets_to_enable:
             widget.setEnabled(True)
 
+        # Setze den TextBrowser auf die ursprüngliche Größe und Schriftgröße zurück
+        self.textBrowser.setGeometry(self.original_textBrowser_geometry)  # Setze die ursprüngliche Geometrie
+        self.textBrowser.setStyleSheet(f"font-size: {self.original_font_size}px;")  # Setze die ursprüngliche Schriftgröße
+
     def setButtonColors(self, fertig_color, verbessern_color, ausgeben_color):
         """Setzt die Hintergrundfarben der Buttons."""
         self.pushButtonProduktFertig.setStyleSheet(f"background-color: {fertig_color};")
@@ -502,6 +545,50 @@ class MainWindow(QtWidgets.QMainWindow):
         # Setze den Text im TextBrowser
         self.textBrowser.setText("".join(display_text))
 
+        # Setze die Schriftfarbe der ComboBoxes
+        self.set_combobox_color(self.comboBox_workpiece)
+        self.set_combobox_color(self.comboBox_mountCap)
+        self.set_combobox_color(self.comboBox_checkColour)
+        self.set_combobox_color(self.comboBox_distribution)
+
+        # Sichtbarkeit der roten Linien basierend auf Eingabewerten aktualisieren
+        self.update_error_lines()
+
+### Funktion: Rote linien unter nicht ausgefüllten Eingaben/Auswahl bei Weiter(Produkt fertig) klickt
+    def set_combobox_color(self, comboBox):
+        """Setzt die Schriftfarbe für bestimmte Einträge in der ComboBox."""
+        # Stelle sicher, dass die ComboBox die richtigen Einträge hat
+        for index in range(comboBox.count()):
+            item_text = comboBox.itemText(index)
+            # Überprüfe, ob der Text "auswählen" oder "select" ist
+            if item_text in ["auswählen", "select"]:
+                comboBox.setItemData(index, QtGui.QColor("red"), QtCore.Qt.ItemDataRole.ForegroundRole)  # Setzt die Schriftfarbe auf rot
+            else:
+                comboBox.setItemData(index, QtGui.QColor("black"), QtCore.Qt.ItemDataRole.ForegroundRole)  # Setzt die Schriftfarbe auf schwarz
+
+    def update_error_lines(self):
+        """Aktualisiert die Sichtbarkeit der roten Linien."""
+        unselected_texts = ["auswählen", "select"]  # Füge hier weitere Sprachen hinzu, falls nötig
+
+        # Sichtbarkeit der roten Linien basierend auf den Eingabewerten steuern
+        if self.lineEdit.text().strip() != "":
+            self.line_red_Produktname.setVisible(False)  # Unsichtbar machen, wenn gültig
+
+        if self.textEdit.toPlainText().strip() != "":
+            self.line_red_Produktbeschreibung.setVisible(False)  # Unsichtbar machen, wenn gültig
+
+        if self.comboBox_workpiece.currentText().strip().lower() not in unselected_texts:
+            self.line_red_workpiece.setVisible(False)  # Unsichtbar machen, wenn gültig
+
+        if self.comboBox_distribution.currentText().strip().lower() not in unselected_texts:
+            self.line_red_distributation.setVisible(False)  # Unsichtbar machen, wenn gültig
+
+        if self.comboBox_mountCap.currentText().strip().lower() not in unselected_texts:
+            self.line_red_mountCap.setVisible(False)  # Unsichtbar machen, wenn gültig
+
+        if self.comboBox_checkColour.currentText().strip().lower() not in unselected_texts:
+            self.line_red_checkColour.setVisible(False)  # Unsichtbar machen, wenn gültig
+
     def on_pushButtonProduktFertig_clicked(self):
         # Texte, die "auswählen" bedeuten, in verschiedenen Sprachen
         unselected_texts = ["auswählen", "select"]  # Füge hier weitere Sprachen hinzu, falls nötig
@@ -515,14 +602,48 @@ class MainWindow(QtWidgets.QMainWindow):
             error_message = "Alle Angaben müssen zuerst ausgefüllt werden!"
 
         # Wenn 'Produkt fertig' gedrückt wird:
+        # Wenn 'Produkt fertig' gedrückt wird:
         # Überprüfen, ob alle Felder ausgefüllt sind
-        if (self.lineEdit.text().strip() == "" or  # Name ist leer
-                self.textEdit.toPlainText().strip() == "" or  # Beschreibung ist leer
-                self.comboBox_workpiece.currentText().strip().lower() in unselected_texts or  # Kein Workpiece ausgewählt
-                self.comboBox_distribution.currentText().strip().lower() in unselected_texts or  # Keine Distribution ausgewählt
-                self.comboBox_mountCap.currentText().strip().lower() in unselected_texts or  # Kein Mount Cap ausgewählt
-                self.comboBox_checkColour.currentText().strip().lower() in unselected_texts):  # Keine Farbe ausgewählt
+        error_found = False
 
+        if self.lineEdit.text().strip() == "":
+            self.line_red_Produktname.setVisible(True)
+            error_found = True
+        else:
+            self.line_red_Produktname.setVisible(False)
+
+        if self.textEdit.toPlainText().strip() == "":
+            self.line_red_Produktbeschreibung.setVisible(True)
+            error_found = True
+        else:
+            self.line_red_Produktbeschreibung.setVisible(False)
+
+        if self.comboBox_workpiece.currentText().strip().lower() in unselected_texts:
+            self.line_red_workpiece.setVisible(True)
+            error_found = True
+        else:
+            self.line_red_workpiece.setVisible(False)
+
+
+        if self.comboBox_distribution.currentText().strip().lower() in unselected_texts:
+            self.line_red_distributation.setVisible(True)
+            error_found = True
+        else:
+            self.line_red_distributation.setVisible(False)
+
+        if self.comboBox_mountCap.currentText().strip().lower() in unselected_texts:
+            self.line_red_mountCap.setVisible(True)
+            error_found = True
+        else:
+            self.line_red_mountCap.setVisible(False)
+
+        if self.comboBox_checkColour.currentText().strip().lower() in unselected_texts:
+            self.line_red_checkColour.setVisible(True)
+            error_found = True
+        else:
+            self.line_red_checkColour.setVisible(False)
+
+        if error_found:
             # Fehlermeldung anzeigen
             QtWidgets.QMessageBox.warning(
                 None, "Fehler", error_message  # Verwenden Sie die dynamisch festgelegte Fehlermeldung
