@@ -1,6 +1,125 @@
 
-
 from PyQt6 import QtCore, QtGui, QtWidgets
+import xml.etree.ElementTree as ET
+import xmlschema
+import os
+from datetime import datetime
+from xml.dom import minidom
+
+class ProductXMLManager:
+    def __init__(self, xsd_file="products.xsd"):
+        self.xsd_file = xsd_file
+
+    def get_latest_xml_file(self):
+        project_dir = os.getcwd()
+        files = [f for f in os.listdir(project_dir) if f.startswith("products") and f.endswith(".xml")]
+        if not files:
+            return os.path.join(project_dir, "products.xml")
+        latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(project_dir, f)))
+        return os.path.join(project_dir, latest_file)
+
+    def validate_xml(self, xml_file):
+        if not os.path.exists(self.xsd_file):
+            print("XSD-Datei nicht gefunden. Überspringe Validierung.")
+            return True
+        schema = xmlschema.XMLSchema(self.xsd_file)
+        return schema.is_valid(xml_file)
+
+    def load_xml(self, file_path):
+        if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
+            print("XML-Datei nicht gefunden oder leer. Neue wird erstellt.")
+            root = ET.Element("Products", Version="1.0", Creator="Festo Didactic")
+            tree = ET.ElementTree(root)
+            tree.write(file_path, encoding="utf-8", xml_declaration=True)
+            return ET.parse(file_path)
+        try:
+            tree = ET.parse(file_path)
+            if not self.validate_xml(file_path):
+                print("Ungültige XML-Datei gemäß Schema. Neue wird erstellt.")
+                raise ET.ParseError
+            return tree
+        except ET.ParseError:
+            root = ET.Element("Products", Version="1.0", Creator="Festo Didactic")
+            tree = ET.ElementTree(root)
+            tree.write(file_path, encoding="utf-8", xml_declaration=True)
+            return ET.parse(file_path)
+
+    def product_exists(self, tree, product_name, steps):
+        root = tree.getroot()
+        for product in root.findall("Product"):
+            if product.find("ProductName") is not None and product.find("ProductName").text == product_name:
+                workplan = product.find("Workplan")
+                if workplan is not None:
+                    existing_steps = [
+                        (step.find("Function").text or "", step.find("Parameter").text or "",
+                         step.find("FunctionDescription").text or "")
+                        for step in workplan.findall("Step")
+                    ]
+                    if existing_steps == [(function, str(parameter), description) for function, parameter, description in
+                                          steps]:
+                        return True
+        return False
+
+    def add_product(self, tree, product_name, product_description, steps):
+        root = tree.getroot()
+        new_product = ET.Element("Product")
+        ET.SubElement(new_product, "ProductName").text = product_name
+        ET.SubElement(new_product, "ProductDescription").text = product_description  # Beschreibung hinzufügen
+        workplan = ET.SubElement(new_product, "Workplan")
+
+        # Anzahl existierender Schritte zählen
+        existing_steps_count = len(workplan.findall("Step"))
+        # Berechne den Startwert für die neuen Schritte
+        start_step_number = (existing_steps_count + 1) * 10
+        # Zählvariable für die Schritte
+        step_counter = 0
+
+        for step_number, (function, parameter, description) in enumerate(steps):
+            step_number = start_step_number + (step_counter * 10)  # Schrittzahl in 10er Schritten
+            step = ET.SubElement(workplan, "Step")
+            ET.SubElement(step, "Number").text = str(step_number)
+            ET.SubElement(step, "Function").text = function
+            ET.SubElement(step, "Parameter").text = str(parameter)
+            ET.SubElement(step, "FunctionDescription").text = description
+            step_counter += 1  # Erhöhe den Zähler nach jedem Schritt
+        root.append(new_product)
+        print(f"Produkt '{product_name}' wurde hinzugefügt.")
+
+    def save_xml(self, tree, file_path):
+        raw_string = ET.tostring(tree.getroot(), encoding="utf-8")
+        parsed = minidom.parseString(raw_string)
+        for element in parsed.getElementsByTagName("*"):
+            for child in list(element.childNodes):
+                if child.nodeType == child.TEXT_NODE and not child.data.strip():
+                    element.removeChild(child)
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(parsed.toprettyxml(indent="  ", newl="\n"))
+
+    def rename_file(self, file_path):
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")[:-3]
+        new_file_name = f"products-{timestamp}.xml"
+        new_file_path = os.path.join(os.path.dirname(file_path), new_file_name)
+        os.rename(file_path, new_file_path)
+        print(f"Die Datei wurde umbenannt in: {new_file_path}")
+        return new_file_path
+
+    def main(self, product_name, product_description, steps):
+        file_path = self.get_latest_xml_file()
+        tree = self.load_xml(file_path)
+
+        if self.product_exists(tree, product_name, steps):
+            print(f"Produkt '{product_name}' existiert bereits.")
+        else:
+            self.add_product(tree, product_name, product_description, steps)
+            self.save_xml(tree, file_path)
+            new_file_path = self.rename_file(file_path)
+
+            if not self.validate_xml(new_file_path):
+                print("Warnung: Die XML-Datei entspricht nicht dem XSD-Schema!")
+            else:
+                print("XML-Datei entspricht dem XSD-Schema!")
+
+
 
 ### 2tes Window: (wenn Eingaben beim ersten Window bestätigt)
 class AusgabeWindow(QtWidgets.QWidget):
@@ -199,22 +318,39 @@ class MainWindow(QtWidgets.QMainWindow):
 ### Ausgabe am Ende (für XML)
         # Wörterbuch für vordefinierte Begriffe
         self.predefined_words = {
-            "Werkstück rot": "release red workpiece",
+            "Werkstück rot": "release red workpiece",  # RR
             "Red Workpiece": "release red workpiece",
-            "Werkstück schwarz": "release black workpiece",
+            "Werkstück schwarz": "release black workpiece",  # RB
             "Black Workpiece": "release black workpiece",
-            "Werkstück silber": "release silver workpiece",
+            "Werkstück silber": "release silver workpiece",   # RS
             "Silver Workpiece": "release silver workpiece",
-            "Kappe montieren": "mount cap",
+            "Kappe montieren": "mount cap",   # MC
             "Mount Cap": "mount cap",
-            "Farbe kontrollieren": "check colour",
+            "Farbe kontrollieren": "check colour",   # CC
             "Check Color": "check colour",
-            "nationaler Vertrieb": "national distribution",
+            "nationaler Vertrieb": "national distribution",   # SN
             "National Distribution": "national distribution",
-            "internationaler Vertrieb": "international distribution",
+            "internationaler Vertrieb": "international distribution",   # SI
             "International Distribution": "international distribution",
         }
 
+        # Wörterbuch für vordefinierte Begriffe
+        self.predefined_id = {
+            "Werkstück rot": "RR",  # RR
+            "Red Workpiece": "RR",
+            "Werkstück schwarz": "RB",  # RB
+            "Black Workpiece": "RB",
+            "Werkstück silber": "RS",   # RS
+            "Silver Workpiece": "RS",
+            "Kappe montieren": "MC",   # MC
+            "Mount Cap": "MC",
+            "Farbe kontrollieren": "CC",   # CC
+            "Check Color": "CC",
+            "nationaler Vertrieb": "SN",   # SN
+            "National Distribution": "SN",
+            "internationaler Vertrieb": "SI",   # SI
+            "International Distribution": "SI",
+        }
 ### Sprachauswahl Combobox (rechts oben)
         # Sprachwechsel-ComboBox
         self.languageComboBox = QtWidgets.QComboBox(self)
@@ -715,22 +851,47 @@ class MainWindow(QtWidgets.QMainWindow):
         print(f"Produktbeschreibung: {beschreibung}")
 
         # Ausgeben der vordefinierten Begriffe für jede Auswahl
+        wp_id = self.predefined_id.get(workpiece, workpiece)
+        print(f"Werkstück ID: {wp_id}")
         wp = self.predefined_words.get(workpiece, workpiece)
         print(f"Werkstück: {wp}")
 
+        mc_id = self.predefined_id.get(mountCap, mountCap)
+        print(f"Kappe montieren ID: {mc_id}")
         mc = self.predefined_words.get(mountCap, mountCap)
         print(f"Kappe montieren: {mc}")
 
+        cc_id = self.predefined_id.get(checkColour, checkColour)
+        print(f"Farbe kontrollieren ID: {cc_id}")
         cc = self.predefined_words.get(checkColour, checkColour)
         print(f"Farbe kontrollieren: {cc}")
 
+        dist_id = self.predefined_id.get(distribution, distribution)
+        print(f"Vertrieb ID: {dist_id}")
         dist = self.predefined_words.get(distribution, distribution)
         print(f"Vertrieb: {dist}")
-        
+
         #########                     #######
         #########                     #######
         ######### ausgabe in XML Code #######
         ########                      #######
+
+        # Generiere die steps basierend auf den Benutzereingaben
+        steps = []
+        if workpiece and workpiece != "-":  # Nur hinzufügen, wenn workpiece nicht leer ist und nicht ein '-'
+            steps.append((f"{wp_id}", 1, f"{wp}"))
+        if mountCap and mountCap != "-":  # Nur hinzufügen, wenn mountCap nicht leer ist und nicht ein '-'
+            steps.append((f"{mc_id}", 1, f"{mc}"))
+        if checkColour and checkColour != "-":  # Nur hinzufügen, wenn checkColour nicht leer ist und nicht ein '-'
+            steps.append((f"{cc_id}", 1, f"{cc}"))
+        if distribution and distribution != "-":  # Nur hinzufügen, wenn distribution nicht leer ist und nicht ein '-'
+            steps.append((f"{dist_id}", 1, f"{dist}"))
+
+        # Instanziiere den ProductXMLManager
+        manager = ProductXMLManager()
+
+        # Übergabe der Werte an die main-Methode
+        manager.main(name, beschreibung, steps)  # Übergebe die Werte an die main-Methode
 
         # Öffne das neue Fenster (AusgabeWindow) und übergebe das MainWindow
         self.newWindow = AusgabeWindow(self)  # MainWindow wird übergeben
