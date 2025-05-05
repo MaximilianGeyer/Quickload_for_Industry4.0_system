@@ -174,7 +174,7 @@ class AusgabeWindow(QtWidgets.QWidget):
 ### Kästchen (mitte) mit Schriftinhalt (Beschreibung Ordner)
         # QTextBrowser hinzufügen
         self.textBrowser = QtWidgets.QTextBrowser(self)
-        self.textBrowser.setGeometry(QtCore.QRect(240, 450, 980, 106))
+        self.textBrowser.setGeometry(QtCore.QRect(240, 400, 980, 265))
         self.textBrowser.setStyleSheet("font-size: 20px;")
         self.textBrowser.setText("Die Datei: ... befindet sich im Ordner ... diese musst du in die Industrie 4.0 Anlage einpflegen. Danach kannst es dann unter den Produktnamen den du deinen Produkt gegeben hast im System der Industrie 4.0 Anlage aufrufen.")
 
@@ -215,16 +215,26 @@ class AusgabeWindow(QtWidgets.QWidget):
             self.setWindowTitle("Produkt Ausgeben")
             self.label.setText("Das Produkt wurde erfolgreich erstellt!")
             self.textBrowser.setText(
-                "Die Datei: ... befindet sich im Ordner ... diese musst du in die Industrie 4.0 Anlage einpflegen. "
-                "Danach kannst es dann unter den Produktnamen, den du deinem Produkt gegeben hast, im System der Industrie 4.0 Anlage aufrufen."
+                "Die Datei: products-2025-05-02_13-32-01-845.xml (beispielhafte XML-Datei) müssen Sie in die Industrie 4.0 Anlage einpflegen. \n"
+                "\n"
+                "Bei der Industrie 4.0 Anlage müssen Sie in den Ordner MPS203-|40, Dokumente, MPS_MiniMES, Settings gehen. \n"
+                "\n"
+                "Die aktuelle products-Datei nun löschen. Die erwünschte products-2025-05-02_13-32-01-845.xml (beispielhafte XML-Datei) dem Ordner hinzufügen und in 'products' umbennenen.\n"
+                "\n"
+                "Danach können Sie die neuen Produkte im System der Industrie 4.0 Anlage sehen."
             )
             self.backButton.setText("Zurück zum Hauptfenster")
         else:  # Fallback auf Englisch
             self.setWindowTitle("Product Output")
             self.label.setText("The product has been successfully created!")
             self.textBrowser.setText(
-                "The file: ... is located in the folder ... you need to upload this to the Industry 4.0 system. "
-                "After that, you can call it under the product name you have given to your product in the Industry 4.0 system."
+                "You need to import the file products-2025-05-02_13-32-01-845.xml (sample XML file) into the Industry 4.0 system. \n"
+                "\n"
+                "To do this, navigate to the following folder within the Industry 4.0 system: MPS203-|40, Dokumente, MPS_MiniMES, Settings. \n"
+                "\n"
+                "Delete the current products file in this folder. Then add the desired products-2025-05-02_13-32-01-845.xml (sample XML file) to the folder and rename it to products.\n"
+                "\n"
+                "Afterwards, the new products will be visible in the Industry 4.0 system."
             )
             self.backButton.setText("Back to Main Window")
 
@@ -870,11 +880,6 @@ class MainWindow(QtWidgets.QMainWindow):
         print(f"Vertrieb ID: {dist_id}")
         dist = self.predefined_words.get(distribution, distribution)
         print(f"Vertrieb: {dist}")
-
-        #########                     #######
-        #########                     #######
-        ######### ausgabe in XML Code #######
-        ########                      #######
 
         # Generiere die steps basierend auf den Benutzereingaben
         steps = []
